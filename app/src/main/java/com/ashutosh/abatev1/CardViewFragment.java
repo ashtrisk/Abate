@@ -4,6 +4,8 @@ package com.ashutosh.abatev1;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +17,10 @@ import android.view.ViewGroup;
 public class CardViewFragment extends Fragment {
 
     View rootView;
+
     public CardViewFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -26,6 +28,11 @@ public class CardViewFragment extends Fragment {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_card_view , container, false);
         Context ctx = getActivity();
+
+        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView_cardViewFragment);
+        LinearLayoutManager llm = new LinearLayoutManager(ctx);
+        recyclerView.setLayoutManager(llm);         // adapter will be set in the UIHelper class
+        recyclerView.setHasFixedSize(true);
 
         if(savedInstanceState == null) {
             UIHelper uiHelper = new UIHelper(ctx, rootView);

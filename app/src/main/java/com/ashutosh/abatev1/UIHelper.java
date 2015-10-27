@@ -7,11 +7,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.io.File;
@@ -37,12 +36,16 @@ public class UIHelper extends AsyncTask<Void, Void, ArrayList<Bitmap>> {
 
     @Override
     protected ArrayList<Bitmap> doInBackground(Void... voids) {
+        // Note: Remember a toast can't be launched from background thread.
         // fetch images from server, store images in database, fetch images from database, show images to user
 
         DBHelper dbHelper = new DBHelper(ctx);
         // The database is created here when a call to getWritableDatabase() is made for the first time using the UserPostContract.
         // the call returns a read-write database
         SQLiteDatabase writableDatabase = dbHelper.getWritableDatabase();
+
+        // database should be cleared for the first time the application is installed.
+        int rows = writableDatabase.delete(UserPostContract.Post.TABLE_NAME, null, null);
 
         NetworkHelper.DBWriter dbWriter = new NetworkHelper.DBWriter(writableDatabase);
         dbWriter.executeProcess();
@@ -55,6 +58,8 @@ public class UIHelper extends AsyncTask<Void, Void, ArrayList<Bitmap>> {
         readDataFromDB(readableDatabase);
 
         readDataFromExtStorage();
+
+        dbHelper.close();                               // close the databse after use
 
         ArrayList<Bitmap> drawables = new ArrayList<>();
         //drawables = getDrawables();       // commented out
@@ -86,10 +91,11 @@ public class UIHelper extends AsyncTask<Void, Void, ArrayList<Bitmap>> {
 
         contentList = new ArrayList<>();
         uriList = new ArrayList<>();
-
+        int x = c.getCount();int y = 0;
         for(int i=0; i<c.getCount(); i++){
             long id = c.getLong(c.getColumnIndex(UserPostContract.Post._ID));
             if(id>=0){
+                y++;
                 String content = c.getString(c.getColumnIndex(UserPostContract.Post.COLUMN_NAME_POST_CONTENT));
                 contentList.add(content);
                 String uri = c.getString(c.getColumnIndex(UserPostContract.Post.COLUMN_NAME_POST_IMAGE_URI));
@@ -169,12 +175,15 @@ public class UIHelper extends AsyncTask<Void, Void, ArrayList<Bitmap>> {
 
 //        ArrayList<Bitmap> drawables = bitmaps;
         ArrayList<Bitmap> drawables = mBitmaps;
-        RecyclerView recyclerView = new RecyclerView(ctx);
-        LinearLayoutManager llm = new LinearLayoutManager(ctx);
-        recyclerView.setLayoutManager(llm);
+        RecyclerView recyclerView = (RecyclerView)rootView.findViewById(R.id.recyclerView_cardViewFragment);
+//        LinearLayoutManager llm = new LinearLayoutManager(ctx);
+//        recyclerView.setLayoutManager(llm);       // layoutManager is already set in the CardViewFragment
         RecyclerView.Adapter adapter = new MyRecyclerAdapter(contentList, uriList, drawables);
         recyclerView.setAdapter(adapter);
-//        recyclerView.setItemAnimator(null);
-        ((ViewGroup) rootView).addView(recyclerView);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());        // use the default animations
+
+//        recyclerView.rem
+
+//        ((ViewGroup) rootView).addView(recyclerView);
     }
 }

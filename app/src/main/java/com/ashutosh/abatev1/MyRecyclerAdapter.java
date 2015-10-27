@@ -20,6 +20,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     ArrayList<String> mContentList;
     ArrayList<String> mUriList;
     ArrayList<Bitmap> mBitmaps;
+
     MyRecyclerAdapter(ArrayList<String> contentList, ArrayList<String> uriList, ArrayList<Bitmap> drawables){
         mContentList = contentList;
         mUriList = uriList;
@@ -37,6 +38,9 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
             public void onClick(View view) {
 //                Intent intent = new Intent(ctx, DetailActivity.class);
 //                ctx.startActivity(intent);        // listener when a cardView is clicked
+                //Intent intentx = new Intent(ctx, NavDrawerActivity.class);
+                //ctx.startActivity(intentx);
+
             }
         });
 
@@ -55,15 +59,15 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         Context ctx = holder.itemView.getContext();
         //if(position < mBitmaps.size()) {        // only call getView if there are more items to load
 
-            View view = getViewForCard(ctx, position);      // getView for the card
-            holder.viewGroup.addView(view);
-
+        View view = getViewForCard(ctx, position);      // getView for the card
+        holder.viewGroup.removeAllViews();              //overlapping of items solved here
+        holder.viewGroup.addView(view);
         //}
     }
 
     @Override
     public int getItemCount() {
-        return mBitmaps.size();
+        return mUriList.size();
     }
 
     public View getViewForCard(Context context, int pos){
@@ -95,7 +99,10 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         dImageView.requestLayout();
         dImageView.getLayoutParams().height = 500;
         dImageView.getLayoutParams().width = 500;
-        dImageView.setImageBitmap(mBitmaps.get(pos));
+        if(pos<mBitmaps.size()){
+            Bitmap bmp = mBitmaps.get(pos);
+            dImageView.setImageBitmap(bmp);
+        }
         dImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         ll.addView(dImageView);       // commented out
