@@ -135,9 +135,12 @@ public class NavDrawerActivity extends AppCompatActivity
             Context ctx = getActivity();
 
             RecyclerView recyclerView = (RecyclerView)rootView.findViewById(R.id.recyclerView_navActivityFragment);
+            
             LinearLayoutManager llm = new LinearLayoutManager(ctx);
             recyclerView.setLayoutManager(llm);
 
+            XRecyclerAdapter adapter = new XRecyclerAdapter();
+            recyclerView.setAdapter(adapter);
 //            if(savedInstanceState!=null){
 //                UIHelper uiHelper = new UIHelper(ctx, rootView);
 //                uiHelper.execute();

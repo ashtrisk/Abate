@@ -1,9 +1,11 @@
 package com.ashutosh.abatev1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -38,11 +40,16 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
             public void onClick(View view) {
 //                Intent intent = new Intent(ctx, DetailActivity.class);
 //                ctx.startActivity(intent);        // listener when a cardView is clicked
-                //Intent intentx = new Intent(ctx, NavDrawerActivity.class);
-                //ctx.startActivity(intentx);
+                Intent intentx = new Intent(ctx, NavDrawerActivity.class);
+                ctx.startActivity(intentx);
 
             }
         });
+
+        LayoutInflater inflater = LayoutInflater.from(ctx);
+        View rootView = inflater.inflate(R.layout.news_item_layout, null, false);
+
+        cardView.addView(rootView);
 
         // set edges round for the cardView
         int radius = 14;
@@ -59,9 +66,9 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         Context ctx = holder.itemView.getContext();
         //if(position < mBitmaps.size()) {        // only call getView if there are more items to load
 
-        View view = getViewForCard(ctx, position);      // getView for the card
         holder.viewGroup.removeAllViews();              //overlapping of items solved here
-        holder.viewGroup.addView(view);
+        getViewForCard(ctx, position, holder.viewGroup);      // getView for the card
+
         //}
     }
 
@@ -70,18 +77,18 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         return mUriList.size();
     }
 
-    public View getViewForCard(Context context, int pos){
+    public void getViewForCard(Context context, int pos, ViewGroup vg){
 //        View view;
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+//        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+//                ViewGroup.LayoutParams.WRAP_CONTENT);
         Context ctx = context;
-        LinearLayout ll = new LinearLayout(ctx);
-        ll.setLayoutParams(params);
-        ll.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout ll = (LinearLayout) vg.findViewById(R.id.linearLayout_news_root);     //new LinearLayout(ctx);
+//        ll.setLayoutParams(params);
+//        ll.setOrientation(LinearLayout.VERTICAL);
 
-        TextView tv = new TextView(ctx);
+        TextView tv = (TextView)vg.findViewById(R.id.textView_news_date);  //new TextView(ctx);
         tv.setText(mUriList.get(pos));
-        TextView tv1 = new TextView(ctx);
+        TextView tv1 = (TextView)vg.findViewById(R.id.textView_news_title);  //new TextView(ctx);
         tv1.setText(mContentList.get(pos));
 //        ImageView imageView = new ImageView(ctx);
         //imageView.setMinimumHeight(50);
@@ -94,23 +101,24 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
         // create an image view and add bitmap to it.
 
-        DynamicImageView dImageView = new DynamicImageView(ctx);
-        dImageView.setLayoutParams(params);
-        dImageView.requestLayout();
-        dImageView.getLayoutParams().height = 500;
-        dImageView.getLayoutParams().width = 500;
-        if(pos<mBitmaps.size()){
-            Bitmap bmp = mBitmaps.get(pos);
-            dImageView.setImageBitmap(bmp);
-        }
-        dImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+//        DynamicImageView dImageView = new DynamicImageView(ctx);
+//        dImageView.setLayoutParams(params);
+//        dImageView.requestLayout();
+//        dImageView.getLayoutParams().height = 500;
+//        dImageView.getLayoutParams().width = 500;
+//        if(pos<mBitmaps.size()){
+//            Bitmap bmp = mBitmaps.get(pos);
+//            dImageView.setImageBitmap(bmp);
+//        }
+//        dImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        ImageView imageView = (ImageView) vg.findViewById(R.id.imageView_newsItem);
+        imageView.setImageBitmap(mBitmaps.get(pos));
 
-        ll.addView(dImageView);       // commented out
+//        ll.addView(dImageView);       // commented out
+//
+//        ll.addView(tv);
+//        ll.addView(tv1);
 
-        ll.addView(tv);
-        ll.addView(tv1);
-
-        return ll;
     }
 
 }
