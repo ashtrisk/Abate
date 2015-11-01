@@ -66,7 +66,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         Context ctx = holder.itemView.getContext();
         //if(position < mBitmaps.size()) {        // only call getView if there are more items to load
 
-        holder.viewGroup.removeAllViews();              //overlapping of items solved here
+        //holder.viewGroup.removeAllViews();              //overlapping of items solved here
         getViewForCard(ctx, position, holder.viewGroup);      // getView for the card
 
         //}
@@ -74,7 +74,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mUriList.size();
+        return getLeastSize();
     }
 
     public void getViewForCard(Context context, int pos, ViewGroup vg){
@@ -112,6 +112,10 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
 //        }
 //        dImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         ImageView imageView = (ImageView) vg.findViewById(R.id.imageView_newsItem);
+        if(imageView.getDrawable() != null){
+            imageView.setImageDrawable(null);   // remove any image from imageview
+        }
+
         imageView.setImageBitmap(mBitmaps.get(pos));
 
 //        ll.addView(dImageView);       // commented out
@@ -120,5 +124,18 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
 //        ll.addView(tv1);
 
     }
+
+    private int getLeastSize() {
+        int s1 = mBitmaps.size();
+        int s2 = mContentList.size();
+        int s3 = mUriList.size();
+        if(s1>=s2 && s1>=s3)
+            return s1;
+        else if(s2>=s1 && s2>=s3)
+            return s2;
+        else
+            return s3;
+    }
+
 
 }
