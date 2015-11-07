@@ -17,4 +17,12 @@ public class UserPostContract {
         public static final String COLUMN_NAME_POST_CONTENT = "post_content";
         public static final String COLUMN_NAME_POST_IMAGE_URI = "post_image_uri";
     }
+
+    public static final class User implements BaseColumns {
+        // defines the columns for the 'user' table
+        public static final String TABLE_NAME = "user";
+        public static final String COLUMN_NAME_USERNAME = "username";
+        public static final String COLUMN_NAME_USER_EMAIL = "user_email";
+        public static final String COLUMN_NAME_USER_PIC_HTTP_URL = "user_pic_url";
+    }
 }

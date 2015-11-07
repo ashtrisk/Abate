@@ -2,39 +2,44 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/linearLayout_news_root">
+    android:id="@+id/linearLayout_news_root"
+    >
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView_newsItem"
-        android:layout_weight="5"
-        android:src="@drawable/pic1"
+        android:id="@+id/imageView_postItem"
+        android:layout_weight="9"
         android:adjustViewBounds="true"
-        android:scaleType="fitXY"/>
+        android:scaleType="fitXY"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
         android:orientation="horizontal"
-        android:id="@+id/linearLayout_news_horz"
-        android:layout_weight="5">
+        android:id="@+id/linearLayout_post_horz"
+        android:layout_weight="1"
+        android:weightSum="1">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/textView_news_title"
-            android:layout_weight="3"
-            android:gravity="center"
-            android:text="Improper Water Supply"/>
+            android:id="@+id/textView_post_desc"
+            android:lines="4"
+            android:layout_weight="0.7"
+            android:gravity="center"/>
+            <!--android:text="Famous Scam of 2nd Tenure of UPA government, allegadely by A.Raja MP from Tamilnadu and member of DMK party. Loss to Country : 176,000 Crore Rs Politicians, Bureaucrats Company Involved : A. Raja, M. K. Kanimozhi, Siddharth Behura, RK Chandolia, Sanjay Chandra, Gautam Doshi, Hari Nair, Surendra Pipara, Vinod Goenka, Shahid Balwa, Asif Balwa (younger brother of Shahid Balwa), Rajiv Agarwal, Sharath Kumar, Ravi Ruia, Anshuman Ruia, Vikas Saraf, IP Khaitan, Kiran Khaitan, Karim Morani, Unitech Wireless, Reliance Telecom, Swan Telecom Brief Description : 2G spectrum license were distributed to various companies on a very low rate and by a policy which cost nation more than 1,76,000 Crore rs. Many Politicians and Businessmen were held in custody and CBI probe is going on in this case."-->
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="177dp"
             android:layout_height="match_parent"
-            android:id="@+id/textView_news_date"
-            android:layout_weight="1"
+            android:id="@+id/textView_post_categ"
+            android:lines="1"
+            android:textStyle="bold"
             android:gravity="center"
-            android:text="25th Oct"/>
+            android:layout_weight="0.3"/>
+            <!--android:text="CORRUPTION"/>-->
 
     </LinearLayout>
 </LinearLayout>

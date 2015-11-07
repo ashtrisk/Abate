@@ -8,12 +8,16 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -24,10 +28,11 @@ public class UIHelper extends AsyncTask<Void, Void, ArrayList<Bitmap>> {
 
     private Context ctx;
     private View rootView;
-    private ArrayList<String> contentList;
-    private ArrayList<String> uriList;
+    private ArrayList<String> mContentList;
+    private ArrayList<String> mCategoryList;
     public static String LOG_TAG;
     private ArrayList<Bitmap> mBitmaps;
+    private RecyclerView.Adapter adapter;
 
     public UIHelper(Context ctx, View rootView) {
         this.ctx = ctx;
@@ -71,7 +76,7 @@ public class UIHelper extends AsyncTask<Void, Void, ArrayList<Bitmap>> {
         super.onPostExecute(bitmaps);
         //((CardViewFragment)((Activity) ctx).getFragmentManager().findFragmentByTag("CardViewFragment")).showView(bitmaps);
         Toast.makeText(ctx, "bitmap : " + mBitmaps.toString(), Toast.LENGTH_SHORT).show();
-        showView(bitmaps);
+        showView(bitmaps);              // doesn't work for now
     }
 
     private void readDataFromDB(SQLiteDatabase readableDB){
@@ -89,17 +94,19 @@ public class UIHelper extends AsyncTask<Void, Void, ArrayList<Bitmap>> {
 
         c.moveToFirst();
 
-        contentList = new ArrayList<>();
-        uriList = new ArrayList<>();
-        int x = c.getCount();int y = 0;
+        mContentList = new ArrayList<>();
+        mCategoryList = new ArrayList<>();
+        int x = c.getCount();   int y = 0;
+
+        // read data from the table rows using the cursor
         for(int i=0; i<c.getCount(); i++){
             long id = c.getLong(c.getColumnIndex(UserPostContract.Post._ID));
             if(id>=0){
                 y++;
                 String content = c.getString(c.getColumnIndex(UserPostContract.Post.COLUMN_NAME_POST_CONTENT));
-                contentList.add(content);
+                mContentList.add(content);
                 String uri = c.getString(c.getColumnIndex(UserPostContract.Post.COLUMN_NAME_POST_IMAGE_URI));
-                uriList.add(uri);
+                mCategoryList.add(uri);
             }
             c.moveToNext();         // move to next row
         }
@@ -107,7 +114,7 @@ public class UIHelper extends AsyncTask<Void, Void, ArrayList<Bitmap>> {
     }
 
 
-    private void readDataFromExtStorage() {
+    private void readDataFromExtStorage() {             // reads bitmaps from external storage
         LOG_TAG = UIHelper.class.toString();
         String dummyFile = "file";
         File fileX = new File(ctx.getExternalFilesDir(Environment.DIRECTORY_PICTURES), dummyFile);
@@ -151,16 +158,7 @@ public class UIHelper extends AsyncTask<Void, Void, ArrayList<Bitmap>> {
             }
             path = files[i].getPath();              // get the file path
 
-            options = new BitmapFactory.Options();    // creating a new options ref for every loop count/image
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(path, options);
-
-            options.inSampleSize = NetworkHelper.calculateInSampleSize(options, 100, 100);
-
-            options.inJustDecodeBounds = false;
-            bmp = BitmapFactory.decodeFile(path, options);
-
-            mBitmaps.add(bmp);
+            mBitmaps.add(NetworkHelper.getResizedBitmap(path));
         }
 /*
         }catch (IOException e){
@@ -174,16 +172,68 @@ public class UIHelper extends AsyncTask<Void, Void, ArrayList<Bitmap>> {
         //       "x", "y", "z", "9", "10"));
 
 //        ArrayList<Bitmap> drawables = bitmaps;
-        ArrayList<Bitmap> drawables = mBitmaps;
+        final ArrayList<Bitmap> drawables = mBitmaps;
         RecyclerView recyclerView = (RecyclerView)rootView.findViewById(R.id.recyclerView_cardViewFragment);
 //        LinearLayoutManager llm = new LinearLayoutManager(ctx);
 //        recyclerView.setLayoutManager(llm);       // layoutManager is already set in the CardViewFragment
-        RecyclerView.Adapter adapter = new MyRecyclerAdapter(contentList, uriList, drawables);
+        adapter = new MyRecyclerAdapter(mContentList, mCategoryList, mBitmaps);
         recyclerView.setAdapter(adapter);
+
         recyclerView.setItemAnimator(new DefaultItemAnimator());        // use the default animations
 
-//        recyclerView.rem
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            int visibleItemCount, totalItemCount, pastVisiblesItems;
+            boolean loading = false;
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager llm = (LinearLayoutManager) recyclerView.getLayoutManager();
+                visibleItemCount = llm.getChildCount();
+                totalItemCount = llm.getItemCount();
+                pastVisiblesItems = llm.findFirstVisibleItemPosition();
+
+                if (!loading) {
+                    if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                        // if scrolling reaches end of the list
+                        loading = true;
+                        Log.v("...", "Last Item Wow !");
+                        Toast.makeText(ctx, "Reached End : Load More Items", Toast.LENGTH_SHORT).show();
+
+                        // launch an async task to load more images into the adapter
+                        LoadMoreBitmaps moreBitmaps = new LoadMoreBitmaps();
+                        moreBitmaps.execute();
+                    }
+                } else {
+                    loading = false;
+                }
+            }
+        });
 
 //        ((ViewGroup) rootView).addView(recyclerView);
+    }
+
+    public class LoadMoreBitmaps extends AsyncTask<Void, Void, Void>{
+        @Override
+        protected Void doInBackground(Void... voids) {
+            int w = SuperHelper.getImageWidth(ctx);
+            int h = SuperHelper.getImageHeight(ctx);
+
+            try {
+                mBitmaps.add(Picasso.with(ctx).load("http://i.imgur.com/DvpvklR.png").resize(w, h).get());
+                mBitmaps.add(Picasso.with(ctx).load("http://i.imgur.com/dM5hfCg.jpg").resize(w, h).get());
+                mBitmaps.add(Picasso.with(ctx).load("http://i.imgur.com/dM5hfCg.jpg").resize(w, h).get());
+                mBitmaps.add(Picasso.with(ctx).load("http://i.imgur.com/Uj6PxCA.jpg").resize(w, h).get());
+            } catch (IOException e) {
+                Log.e(UIHelper.LOG_TAG, "Error loading images with picasso");
+            }
+            mCategoryList.add("xxxxx");              mCategoryList.add("yyyyy");
+            mCategoryList.add("mnopq");              mCategoryList.add("abcde");
+            mContentList.add("contentx");        mContentList.add("contentz");
+            mContentList.add("mmmmm");           mContentList.add("zzzzz");
+            adapter.notifyItemInserted(mBitmaps.size());
+            return null;
+        }
     }
 }

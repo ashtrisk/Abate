@@ -1,0 +1,34 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" tools:context="com.ashutosh.abatev1.DetailViewFragment"
+    android:id="@+id/linearLayout_detail"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView_detail"
+        android:layout_weight="4"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView_post_categ"
+        android:lines="1"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_weight="1"/>
+    <!--android:text="CORRUPTION"/>-->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView_post_desc"
+            android:layout_weight="5"
+            android:gravity="center"/>
+        <!--android:text="Famous Scam of 2nd Tenure of UPA government, allegadely by A.Raja MP from Tamilnadu and member of DMK party. Loss to Country : 176,000 Crore Rs Politicians, Bureaucrats Company Involved : A. Raja, M. K. Kanimozhi, Siddharth Behura, RK Chandolia, Sanjay Chandra, Gautam Doshi, Hari Nair, Surendra Pipara, Vinod Goenka, Shahid Balwa, Asif Balwa (younger brother of Shahid Balwa), Rajiv Agarwal, Sharath Kumar, Ravi Ruia, Anshuman Ruia, Vikas Saraf, IP Khaitan, Kiran Khaitan, Karim Morani, Unitech Wireless, Reliance Telecom, Swan Telecom Brief Description : 2G spectrum license were distributed to various companies on a very low rate and by a policy which cost nation more than 1,76,000 Crore rs. Many Politicians and Businessmen were held in custody and CBI probe is going on in this case."-->
+
+</LinearLayout>

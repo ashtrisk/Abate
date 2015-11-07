@@ -2,19 +2,30 @@ package com.ashutosh.abatev1;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -36,6 +47,9 @@ public class NetworkHelper {
 
     public static class DBWriter {
         private SQLiteDatabase db;
+        private ArrayList<String> contentList;
+        private ArrayList<String> categoryList;
+        private int noOfPostItems;
 
         public DBWriter(SQLiteDatabase writableDatabase) {
             this.db = writableDatabase;
@@ -43,14 +57,25 @@ public class NetworkHelper {
 
         // writes network output to the database
         public void executeProcess() {
-            // Dummy Data
-            ArrayList<String> contentList = new ArrayList<>(Arrays.asList("Pollution", "Corruption", "Poverty", "Crime", "Poor literacy",
-                    "Child Labour", "Child Marriage", "Improper Org. Working", "Poor Infrastructure", "Dirty Roads"));
-            ArrayList<String> uriList = new ArrayList<>(Arrays.asList("abc", "xyz", "123", "uvw", "mno", "987", "pqr", "ijk", "999", "ghi"));
-            int noOfItems = 10;
+            categoryList = new ArrayList<>();
+            contentList = new ArrayList<>();
 
-            for (int i = 0; i < noOfItems; i++) {
-                 storeData(contentList.get(i), uriList.get(i));
+            getDataFromServer();        // retrieves the contentList and the categoryList from the server
+//            int noOfItems = 7;          // should be atleast 10 for the start
+
+            if(noOfPostItems < 1){
+                // Dummy Data if there is no data in the server
+                contentList = new ArrayList<>(Arrays.asList("Pollution", "Corruption", "Poverty", "Crime", "Poor literacy",
+                        "Child Labour", "Child Marriage", "Improper Org. Working", "Poor Infrastructure", "Dirty Roads"));
+                categoryList = new ArrayList<>(Arrays.asList("abc", "xyz", "123", "uvw", "mno", "987", "pqr", "ijk", "999", "ghi"));
+
+                for (int i = 0; i < 10; i++) {
+                    storeData(contentList.get(i), categoryList.get(i));
+                }
+            } else {
+                for (int i = 0; i < noOfPostItems; i++) {
+                    storeData(contentList.get(i), categoryList.get(i));
+                }
             }
             // loop starts for every item in network
             //      data = fetchData();
@@ -66,18 +91,87 @@ public class NetworkHelper {
             long rowId;     // primary key id
             rowId = db.insert(UserPostContract.Post.TABLE_NAME, UserPostContract.Post.COLUMN_NAME_POST_IMAGE_URI, values);
         }
+
+        private void getDataFromServer() {
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String jsonArrayString = "";
+
+            try {
+                // constructing the url for openweathermap query
+                final String GET_POSTS_BASE_URL =
+                        "http://abate-csmadhav.rhcloud.com/getposts?";
+                final String QUERY_PARAM_REQNO = "reqno";
+
+                Uri builtUri = Uri.parse(GET_POSTS_BASE_URL).buildUpon()
+                        .appendQueryParameter(QUERY_PARAM_REQNO, "1")
+                        .build();
+
+                URL url = new URL(builtUri.toString());
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+
+                StringBuffer buffer = new StringBuffer();
+
+//                if (inputStream == null) {
+//                    // Nothing to do.
+//                    return null;
+//                }
+
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
+
+                jsonArrayString = buffer.toString();
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+            try{
+                parsePostJsonArray(jsonArrayString);
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
+        }
+
+        private void parsePostJsonArray(String jsonArrayString) throws JSONException{
+            JSONArray jsonArray = new JSONArray(jsonArrayString);
+            //noOfPostItems = jsonArray.length();
+            noOfPostItems = 5;
+            for(int i = 0; i< noOfPostItems; i++){
+                JSONObject object = jsonArray.getJSONObject(i);
+                categoryList.add(object.getString("category"));
+                contentList.add(object.getString("description"));
+            }
+        }
     }
 
     // note : this is a time consuming task/method and should therefore be done only in background.
     private ArrayList<Bitmap> getBitmaps(){
 
-        int ids[] = {R.drawable.pic1, R.drawable.pic2, R.drawable.pic3,
+        ArrayList<Bitmap> bitmaps = new ArrayList<>();
+        String imgs[] = { "IMG1446884399464.jpg", "IMG1446883898721.jpg", "IMG1446883093305.jpg", "IMG1446877588263.jpg",
+                            "IMG1446876724687.jpg"};
+        ArrayList<String> imagesList = new ArrayList<>(Arrays.asList(imgs));
+        String baseUrl = "http://abate-csmadhav.rhcloud.com/images/";           // base url for fetching an image
+        /*int ids[] = {R.drawable.pic1, R.drawable.pic2, R.drawable.pic3,
                 R.drawable.pic4, R.drawable.pic5, R.drawable.pic6,
                 R.drawable.pic7, R.drawable.pic8, R.drawable.ash, R.drawable.pic10};
 
         Resources res = ctx.getResources();
-        ArrayList<Bitmap> bitmaps = new ArrayList<>();
-
 
         BitmapFactory factory = new BitmapFactory();
         for(int i = 0;i<ids.length; i++){
@@ -90,7 +184,19 @@ public class NetworkHelper {
 
             options.inJustDecodeBounds = false;
             bitmaps.add(factory.decodeResource(res, ids[i], options));
+        }*/
+        int w = SuperHelper.getImageWidth(ctx);
+        int h = SuperHelper.getImageHeight(ctx);
+
+        for( String image : imagesList){
+            String url = baseUrl + image;
+            try {
+                bitmaps.add(Picasso.with(ctx).load(url).resize(w, h).get());     // this loads the image from the url and adds to bitmaps
+            }catch (IOException e){
+                e.printStackTrace();
+            }
         }
+
         return bitmaps;
     }
 
@@ -199,6 +305,17 @@ public class NetworkHelper {
             return true;
         }
         return false;
+    }
+
+    public static Bitmap getResizedBitmap(String path){
+        BitmapFactory.Options options = new BitmapFactory.Options();    // creating a new options ref for every loop count/image
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+
+        options.inSampleSize = NetworkHelper.calculateInSampleSize(options, 100, 100);
+
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(path, options);
     }
 
 }

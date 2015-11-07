@@ -3,6 +3,9 @@
     package="com.ashutosh.abatev1" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- For Gplus account info access -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="ANDROID.PERMISSION.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -13,7 +16,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".SignInActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,16 +25,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DetailActivity"
-            android:label="@string/title_activity_detail"
-            android:parentActivityName=".MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.ashutosh.abatev1.MainActivity" />
+            android:name=".MainActivity"
+            android:label="@string/app_name" >
         </activity>
         <activity
             android:name=".NavDrawerActivity"
             android:label="@string/title_activity_nav_drawer" >
+        </activity>
+        <activity
+            android:name=".ScrollingActivity"
+            android:label="@string/title_activity_scrolling"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
+        <activity android:name=".DetailActivity" >
         </activity>
     </application>
 

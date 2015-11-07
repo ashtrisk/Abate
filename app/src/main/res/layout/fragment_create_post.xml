@@ -1,0 +1,51 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" tools:context="com.ashutosh.abatev1.CreatePostFragment"
+    android:id="@+id/linearLayout_createPost" android:weightSum="24"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="14">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/imageView_createPost"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center"
+            android:clickable="true"
+            android:src="@drawable/ic_new"
+            android:id="@+id/button_addImage"/>
+
+    </FrameLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="#009688"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_text_content"
+        android:layout_weight="9"
+        android:text="This is the content with the new created post"
+        android:minHeight="80dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_createPost_submit"
+        android:layout_gravity="center"
+        android:text="Create"
+        android:layout_weight="1"
+        android:background="#009688"/>
+
+</LinearLayout>

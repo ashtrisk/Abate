@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 public class NavDrawerActivity extends AppCompatActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -23,7 +24,7 @@ public class NavDrawerActivity extends AppCompatActivity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
-
+    private int backPress = 0;           // determines no. of back pressed
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
@@ -48,21 +49,26 @@ public class NavDrawerActivity extends AppCompatActivity
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
+        if (position == CreatePostFragment.ITEM_INDEX_IN_DRAWER) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, new CreatePostFragment()).commit();
+        } else {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                    .commit();
+        }
     }
 
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
-                mTitle = getString(R.string.title_section1);
+                mTitle = getString(R.string.category_section);
                 break;
             case 2:
-                mTitle = getString(R.string.title_section2);
+                mTitle = getString(R.string.new_post_section);
                 break;
             case 3:
-                mTitle = getString(R.string.title_section3);
+                mTitle = getString(R.string.about_section);
                 break;
         }
     }
@@ -74,6 +80,17 @@ public class NavDrawerActivity extends AppCompatActivity
         actionBar.setTitle(mTitle);
     }
 
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        if(backPress < 1) {
+            backPress++;
+            Toast.makeText(this, "Tap back once more to exit application", Toast.LENGTH_SHORT).show();
+        } else {
+            finish();
+//            android.os.Process.killProcess(android.os.Process.myPid());
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -131,16 +148,30 @@ public class NavDrawerActivity extends AppCompatActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_nav_drawer, container, false);
+            /*  View rootView = inflater.inflate(R.layout.fragment_nav_drawer, container, false);
             Context ctx = getActivity();
 
             RecyclerView recyclerView = (RecyclerView)rootView.findViewById(R.id.recyclerView_navActivityFragment);
-            
+
             LinearLayoutManager llm = new LinearLayoutManager(ctx);
             recyclerView.setLayoutManager(llm);
 
             XRecyclerAdapter adapter = new XRecyclerAdapter();
-            recyclerView.setAdapter(adapter);
+            recyclerView.setAdapter(adapter);   */
+
+            View rootView = inflater.inflate(R.layout.fragment_card_view, container, false);
+            Context ctx = getActivity();
+
+            RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView_cardViewFragment);
+            LinearLayoutManager llm = new LinearLayoutManager(ctx);
+            recyclerView.setLayoutManager(llm);         // adapter will be set in the UIHelper class
+            recyclerView.setHasFixedSize(true);
+
+            if (savedInstanceState == null) {
+                UIHelper uiHelper = new UIHelper(ctx, rootView);
+                uiHelper.execute();
+            }
+
 //            if(savedInstanceState!=null){
 //                UIHelper uiHelper = new UIHelper(ctx, rootView);
 //                uiHelper.execute();
@@ -150,11 +181,10 @@ public class NavDrawerActivity extends AppCompatActivity
         }
 
         @Override
-        public void onAttach(Activity activity) {
+        public void onAttach (Activity activity){
             super.onAttach(activity);
             ((NavDrawerActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
+                getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
-
 }
